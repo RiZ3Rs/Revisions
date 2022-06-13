@@ -1,0 +1,23 @@
+<div class="card" style="width: 18rem;">
+  <img [src]="this.product.image | image" class="card-img-top" alt="...">
+  <div class="card-body">
+    <h5 class="card-title">{{this.product.name | uppercase }}</h5>
+    <p class="card-text">{{this.product.description}}</p>
+  </div>
+  <ul class="list-group list-group-flush">
+    <li class="list-group-item" [ngStyle]="{'background' : this.product.price ==0 ? 'red': 'green'}">price : {{this.product.price | dollars }} </li>
+    <li class="list-group-item">compagny : {{this.product.company}}</li>
+    <li class="list-group-item" >Like : {{this.product.like }}  </li>
+  </ul>
+  <div class="input-group mb-3">
+    <label>Quantity : </label>
+    <input [(ngModel)]="this.product.quantity"  name="quantity" type="number" placeholder="0" style="text-align: center">
+    <div class="input-group-prepend">
+    </div><button class="btn btn-success" type="button" (click)="product.quantity =product.quantity + 1">+</button>
+    </div>
+    <div class="input-group-prepend">
+    <button class="btn btn-danger" type="button" (click)="product.quantity = product.quantity - 1">-</button>
+  </div>
+    
+</div>
+

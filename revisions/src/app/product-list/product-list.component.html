@@ -1,1 +1,8 @@
-<p>product-list works!</p>
+<div class="container">
+    <div class="row">
+        <div *ngFor="let productVar of ProductArray" class="col">
+            <app-card  [product]="productVar"></app-card>
+        </div>
+    </div>
+</div>
+<router-outlet></router-outlet>

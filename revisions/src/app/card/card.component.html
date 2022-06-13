@@ -1,16 +1,26 @@
-<div class="card" style="width: 18rem;">
-    <img src="../../assets/img/choqué.jpg" class="card-img-top" alt="...">
+<div class="card"  style="width: 18rem;">
+    <img src="{{ product.image | img }}" class="card-img-top" alt="...">
     <div class="card-body">
-      <h5 class="card-title">Card title</h5>
-      <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+      <h5 class="card-title">{{product.title|uppercase}}</h5>
+      <p class="card-text">{{product.description}}</p>
     </div>
     <ul class="list-group list-group-flush">
-      <li class="list-group-item">price : 10€</li>
-      <li class="list-group-item">compagny : WE4B</li>
+      <li class="list-group-item" [ngStyle]="{'background':product.price ==0 ? 'red' : 'green'}">price : {{product.price | prix}}</li>
+      <li class="list-group-item">compagny : {{product.company}}</li>
     </ul>
     <div class="card-body">
-      <a href="#" class="card-link">Card link</a>
+      <a (click)="afficheProd()" class="card-link">Card link</a>
       <a href="#" class="card-link">Another link</a>
+    </div>
+    <div class="card-body">
+      <i *ngIf="!isliked" (click)="fav()" class="fa-regular fa-heart"></i>
+      <i *ngIf="isliked" (click)="fav()" class="fa-solid fa-heart"></i>
+    </div>
+    <div class="card-body">
+      <input [(ngModel)]="this.nbLike" type="number" name="a">   
+      <button  (click)='this.nbLike = this.nbLike + 1'> like</button>
+      <button  (click)='this.nbLike = this.nbLike - 1'> unlike </button>
+      <p> {{this.nbLike}} </p>
     </div>
   </div>
   
