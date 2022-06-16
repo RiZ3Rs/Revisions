@@ -1,0 +1,129 @@
+//<--product.service.ts-------------------------------------------------------------------------------------->
+
+export class ProductService {
+	product!: Product
+	
+	constructor(private http: HttpClient) {
+	}
+	
+	//fonction qui récupère le tableau complet des produits dans le .json
+	getData() : Observable<Product[]> {
+		//on utilise la requete .get() pour récupérer l'intégralité du .json
+		return this.http.get<Product[]>('http://localhost:3000/products')
+	}
+	
+	//fonction qui récupère un seul produit grace à son id
+	getPrdByIndex(prd_idx: number): Product {
+		//on utilise la requete .get() + prd_idx pour récupérer le produit souhaité
+		this.http.get<Product>('http://localhost:3000/products/'+ prd_idx)
+		//méthode pour récupérer la classe car on retourne un (Product) et non pas un (Observable<Product[]>)
+		.subscribe(data => {
+			this.product = data
+		})
+		return this.product
+	}
+	
+	updateLikes(product : Product) : Observable<Product>{
+		//on utilise la requete .put() + product.id pour modifier l'intégralité du produit
+		// c'est pour ca qu'on envoie le product Complet dans la requete
+		// Si on veut changer qu'un seul paramètre on peut utiliser le methode .path()
+		// mais je sais pas comment elle marche x)
+		return this.http.put<Product>('http://localhost:3000/products/' + product.id, product)
+	}
+}
+
+//<--Product-list.component.ts------------------------------------------------------------------------------------------------------------>
+
+export class ProductListComponent implements OnInit {
+  //Comme on le faisait avant on déclare un tableau de produit
+  ProductArray : Product[] = []
+  
+  constructor(private service : ProductService) {
+    //on appelle la fonction qui retourne le tableau de produit dans le service
+	//avec la méthode .subscribe pour récupérer que les (Products) et pas les (Observable<Product[]>)
+    this.service.getData().subscribe( data => {
+		//on donne le retour a notre tableau
+      this.ProductArray = data
+    })
+  }
+
+  ngOnInit(): void {
+  }
+}
+
+//<--Product-list.component.html------------------------------------------------------------------------------------------------------------>
+
+//appel du productComponent dans le html
+ <ng-container *ngFor="let productVar of ProductArray; let i = index ">
+	<div class = "col-4">
+		<app-product [product]="productVar" [prd_idx]="i"></app-product>
+	</div>
+</ng-container>
+
+//<--product.component.ts------------------------------------------------------------------------------------------------------------>
+
+export class ProductComponent implements OnInit {
+  @Input() product! : Product
+  @Input() prd_idx! : number
+
+  constructor(private routeur: Router, private service : ProductService) { }
+
+  ngOnInit(): void {
+
+  }
+	
+	//événement du bouton pour ajouter un like [(click)="icrement()"]
+  increment(event : Event){
+	  //on incremente le product directement
+    this.product.likes += 1 
+	//on appelle la fonction du sercive pour incrementer
+	//ca va permettre de mettre à jour dans le .json ce qu'on a pas encore fait
+	//<------------------------->
+	//on utilise .subscribe pour être sûr qu'on ait la dernière version du Product qui se trouve dans le .json
+    this.service.updateLikes(this.product).subscribe(data => {
+      this.product.likes = data.likes
+    })
+  }
+
+	//pareil mais en decrementant
+  decrement(event : Event){
+    if (this.product.likes>0)
+      this.product.likes -= 1 
+      this.service.updateLikes(this.product)
+      .subscribe(data => {
+        this.product.likes = data.likes
+      })
+  }
+
+ //router pour aller à la page du descriptif du product
+  readMore(){
+
+    this.routeur.navigate(['/', 'products', this.prd_idx+1])
+
+  }
+}
+
+//<--product-full.component.ts------------------------------------------------------------------------------------------------------------>
+
+export class ProductFullComponent implements OnInit {
+
+  prd_idx! : number
+  product! : Product 
+
+
+  constructor(private activatedroute : ActivatedRoute, service : ProductService) { 
+  //on récupère l'id dans l'URL 
+    this.prd_idx = parseInt(this.activatedroute.snapshot.paramMap.get('id') || '0') 
+	//Avec cet id on appelle la fonction du service pour récuperer la component en fonction de son id 
+    this.product = service.getPrdByIndex(this.prd_idx)
+      
+  }
+
+  ngOnInit(): void {
+  }
+
+}
+
+
+
+
